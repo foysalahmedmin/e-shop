@@ -1,0 +1,45 @@
+{
+  "name": "admin-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/admin-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "apps/admin-service/dist",
+        "main": "apps/admin-service/src/main.ts",
+        "tsConfig": "apps/admin-service/tsconfig.app.json",
+        "webpackConfig": "apps/admin-service/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "admin-service:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "admin-service:build:development"
+        },
+        "production": {
+          "buildTarget": "admin-service:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

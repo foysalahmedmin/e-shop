@@ -1,0 +1,21 @@
+packages:
+  - apps/*
+  - packages/components
+  - packages/error-handler
+  - packages/libs/*
+  - packages/middleware
+  - packages/utils/*
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@scarf/scarf'
+  - '@swc/core'
+  - core-js
+  - esbuild
+  - nx
+  - postinstall-postinstall
+  - prisma
+  - sharp
+  - unrs-resolver

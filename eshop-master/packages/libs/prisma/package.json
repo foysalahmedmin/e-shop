@@ -1,0 +1,9 @@
+{
+  "name": "@eshop/prisma",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "@prisma/client": "^6.11.1"
+  }
+} 

@@ -1,0 +1,57 @@
+{
+  "name": "recommendation-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/recommendation-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "apps/recommendation-service/dist",
+        "main": "apps/recommendation-service/src/main.ts",
+        "tsConfig": "apps/recommendation-service/tsconfig.app.json",
+        "assets": ["apps/recommendation-service/src/assets"],
+        "generatePackageJson": true,
+        "webpackConfig": "apps/recommendation-service/webpack.config.js"
+      },
+      "configurations": {
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "inspect": false
+        },
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/recommendation-service/src/environments/environment.ts",
+              "with": "apps/recommendation-service/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "recommendation-service:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "recommendation-service:build:development"
+        },
+        "production": {
+          "buildTarget": "recommendation-service:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

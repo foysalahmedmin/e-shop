@@ -1,0 +1,21 @@
+{
+  "name": "@eshop/kafka-service",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "nx build kafka-service",
+    "start": "node dist/main.js",
+    "dev": "nx serve kafka-service"
+  },
+  "dependencies": {
+    "tslib": "^2.6.0",
+    "typescript": "^5.0.0",
+    "kafkajs": "^2.2.4",
+    "@prisma/client": "^6.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "prisma": "^6.7.0"
+  }
+}

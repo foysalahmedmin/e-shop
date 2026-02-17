@@ -1,0 +1,56 @@
+{
+  "name": "chatting-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/chatting-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "apps/chatting-service/dist",
+        "main": "apps/chatting-service/src/main.ts",
+        "tsConfig": "apps/chatting-service/tsconfig.app.json",
+        "generatePackageJson": true,
+        "webpackConfig": "apps/chatting-service/webpack.config.js"
+      },
+      "configurations": {
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "inspect": false
+        },
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/chatting-service/src/environments/environment.ts",
+              "with": "apps/chatting-service/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "chatting-service:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "chatting-service:build:development"
+        },
+        "production": {
+          "buildTarget": "chatting-service:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

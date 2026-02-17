@@ -1,0 +1,7 @@
+packages:
+  - 'apps/*'
+  - 'packages/components'
+  - 'packages/error-handler'
+  - 'packages/libs/*'
+  - 'packages/middleware'
+  - 'packages/utils/*'

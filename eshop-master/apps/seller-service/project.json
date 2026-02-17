@@ -1,0 +1,41 @@
+{
+  "name": "seller-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/seller-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "apps/seller-service/dist",
+        "main": "apps/seller-service/src/main.ts",
+        "tsConfig": "apps/seller-service/tsconfig.app.json",
+        "webpackConfig": "apps/seller-service/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "seller-service:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "seller-service:build:development"
+        },
+        "production": {
+          "buildTarget": "seller-service:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

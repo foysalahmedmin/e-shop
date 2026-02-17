@@ -1,0 +1,41 @@
+{
+  "name": "order-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/order-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "apps/order-service/dist",
+        "main": "apps/order-service/src/main.ts",
+        "tsConfig": "apps/order-service/tsconfig.app.json",
+        "webpackConfig": "apps/order-service/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "order-service:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "order-service:build:development"
+        },
+        "production": {
+          "buildTarget": "order-service:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

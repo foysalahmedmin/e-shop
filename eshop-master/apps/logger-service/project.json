@@ -1,0 +1,41 @@
+{
+  "name": "logger-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/logger-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "apps/logger-service/dist",
+        "main": "apps/logger-service/src/main.ts",
+        "tsConfig": "apps/logger-service/tsconfig.app.json",
+        "webpackConfig": "apps/logger-service/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "logger-service:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "logger-service:build:development"
+        },
+        "production": {
+          "buildTarget": "logger-service:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

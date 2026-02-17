@@ -1,0 +1,45 @@
+{
+  "name": "@eshop/seller-service",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "nx build seller-service",
+    "start": "node dist/main.js",
+    "dev": "nx serve seller-service"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "cors": "^2.8.5",
+    "cookie-parser": "^1.4.6",
+    "swagger-ui-express": "^4.6.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^16.0.0",
+    "ejs": "^3.1.9",
+    "nodemailer": "^6.9.8",
+    "path": "^0.12.7",
+    "swagger-autogen": "^2.2.1",
+    "stripe": "^12.6.0",
+    "tslib": "^2.6.0",
+    "ioredis": "^5.3.2",
+    "@eshop/error-handler": "workspace:*",
+    "@eshop/prisma": "workspace:*",
+    "@eshop/redis": "workspace:*",
+    "@eshop/middleware": "workspace:*",
+    "@eshop/logs": "workspace:*",
+    "typescript": "^5.0.0",
+    "@prisma/client": "^6.7.0",
+    "node-cron": "^3.0.0",
+    "imagekit": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/cors": "^2.8.13",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/node": "^20.0.0",
+    "@types/node-cron": "^3.0.0",
+    "@types/ioredis": "^5.0.0",
+    "prisma": "^6.7.0"
+  }
+}

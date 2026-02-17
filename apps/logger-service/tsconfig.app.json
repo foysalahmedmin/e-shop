@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "out-tsc/logger-service",
+    "types": [
+      "node",
+      "express"
+    ],
+    "rootDir": "../../",
+    "tsBuildInfoFile": "out-tsc/logger-service/tsconfig.app.tsbuildinfo"
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../packages/**/*.ts"
+  ],
+  "exclude": []
+}

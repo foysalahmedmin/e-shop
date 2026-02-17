@@ -1,0 +1,309 @@
+services:
+  # Load Balancer (Nginx)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+       - ./nginx.conf:/etc/nginx/nginx.conf
+       - /etc/letsencrypt:/etc/letsencrypt:ro
+       - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
+    depends_on:
+      - api-gateway
+      - user-ui
+      - seller-ui
+      - admin-ui
+    restart: unless-stopped
+
+  # Zookeeper for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.2'
+
+  # Kafka
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+
+  # Kafka Topic Creator
+  kafka-setup:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command: |
+      bash -c '
+        echo "Creating Kafka topics..."
+        kafka-topics --create --topic user-events --bootstrap-server kafka:29092 --replication-factor 1 --partitions 3
+        kafka-topics --create --topic logs --bootstrap-server kafka:29092 --replication-factor 1 --partitions 3
+        kafka-topics --create --topic chat.new_message --bootstrap-server kafka:29092 --replication-factor 1 --partitions 3
+        echo "Topics created successfully!"
+      '
+    restart: "no"
+
+  # API Gateway
+  api-gateway:
+    image: ${DOCKER_USERNAME}/api-gateway:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/gateway-health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+  # Auth Service
+  auth-service:
+    image: ${DOCKER_USERNAME}/auth-service:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6001/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+  # Product Service
+  product-service:
+    image: ${DOCKER_USERNAME}/product-service:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+  # Order Service
+  order-service:
+    image: ${DOCKER_USERNAME}/order-service:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+  # Seller Service
+  seller-service:
+    image: ${DOCKER_USERNAME}/seller-service:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+  # Admin Service
+  admin-service:
+    image: ${DOCKER_USERNAME}/admin-service:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+  # Chatting Service
+  chatting-service:
+    image: ${DOCKER_USERNAME}/chatting-service:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+  # All services using Kafka should have:
+  kafka-service:
+    image: ${DOCKER_USERNAME}/kafka-service:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DOCKER_ENV=true
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Logger Service
+  logger-service:
+    image: ${DOCKER_USERNAME}/logger-service:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+  # Recommendation Service
+  recommendation-service:
+    image: ${DOCKER_USERNAME}/recommendation-service:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+  # User UI
+  user-ui:
+    image: ${DOCKER_USERNAME}/user-ui:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SERVER_URI=https://shondhane.com
+      - NEXT_PUBLIC_CHATTING_WEBSOCKET_URI=wss://shondhane.com/ws-chatting
+      - NEXT_PUBLIC_SELLER_SERVER_URI=https://sellers.shondhane.com
+      - NEXT_PUBLIC_STRIPE_PUBLIC_KEY=pk_test_51Ox7STKfWK4AoG4YmNVlSSToDlYzvr8TGe2d36vzYt5iYQ4JViRC976MOF9A2uXU2wzJt4T2IN5NXscnmpGlXlAz00whmGYvmP
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+  # Seller UI
+  seller-ui:
+    image: ${DOCKER_USERNAME}/seller-ui:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+  # Admin UI
+  admin-ui:
+    image: ${DOCKER_USERNAME}/admin-ui:latest
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+
+networks:
+  default:
+    name: eshop-network
