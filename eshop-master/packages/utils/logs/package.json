@@ -1,6 +1,0 @@
-{
-  "name": "@eshop/logs",
-  "version": "1.0.0",
-  "private": true,
-  "main": "send-logs.ts"
-} 
