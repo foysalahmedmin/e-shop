@@ -92,6 +92,19 @@ This document outlines the major architectural, operational, and security lackin
 - **Implication**: If the webhook delivery fails (network issue, server downtime), the customer is charged, but the order is never created in the database, resulting in manual reconciliation and customer support overhead.
 - **Recommendation**: Create "Pending" orders _before_ payment. Use the webhook only to update the status to "Paid". Implement a background cron job to reconcile unpaid/stuck orders.
 
+### 2.6. Lack of State Machine & Automated Reconciliation in Payment Flow
+
+- **Status**: Critical (Architecture/Financial)
+- **Observation**: The payment flow is handled as a linear procedure rather than an **Event-Oriented State Machine**. There is no automated reconciliation mechanism to sync the payment provider's state with the internal database.
+- **Implication**:
+  - **Inflexible States**: Handling complex scenarios like Partial Refunds, Chargebacks, or Payment Disputes is nearly impossible with the current structure.
+  - **Financial Discrepancy**: Without an **Automated Reconciliation Job**, the system cannot identify cases where a user was charged but the order failed to process internally, leading to financial loss or customer distrust.
+  - **Lack of Resilience**: A failure in any one part of the long `createOrder` function can cause the entire post-payout process to fail.
+- **Recommendation**:
+  - Implement a **Payment State Machine** to manage the lifecycle of a transaction.
+  - Adopt an **Event-Oriented approach**: Once a payment is confirmed, publish an internal event and let individual services (Inventory, Shipping, Analytics) consume it.
+  - Build a **Reconciliation Worker** that periodically polls Stripe API to verify if any "Pending" orders have been paid but weren't updated due to webhook failures.
+
 ---
 
 ## 3. Security Lackings
